@@ -1,0 +1,16 @@
+.DS_Store
+/PLAN.md
+/.idea/
+/.vscode/
+/vendor/
+/var/
+/node_modules/
+/.phpunit.cache/
+/.phpunit.result.cache
+/.access-tokens/
+/artifacts/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
