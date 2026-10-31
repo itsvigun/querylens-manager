@@ -1,0 +1,12 @@
+name: querylens-manager
+services:
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:8086:8080"
+    volumes:
+      - .:/app
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: "0"
+    init: true

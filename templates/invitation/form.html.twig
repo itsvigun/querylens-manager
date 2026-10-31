@@ -1,0 +1,2 @@
+{% extends 'base.html.twig' %}
+{% block body %}<a href="{{ path('console') }}">← Invitations</a><h1>{{ editing ? 'Edit invitation' : 'Create invitation' }}</h1><section class="panel narrow">{% if editing %}<p>Editing {{ invitation.name }}. Usage and identity are preserved.</p>{% else %}<p>The code and private link appear once after creation. Copy them before leaving the next page. A lost code requires revocation and a new invitation.</p>{% endif %}{{ form(form) }}</section>{% endblock %}

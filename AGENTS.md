@@ -7,10 +7,10 @@ Read README.md, PLAN.md, docs/README.md and docs/architecture.md first, then
 docs/querylens-context.md, docs/integration.md and docs/security.md before changing
 the integration. Read docs/verification.md for actual evidence.
 
-The current authorized deliverable is documentation only. Do not install Symfony,
-generate application scaffolding, connect to a database or deploy until the user
-explicitly requests implementation. A later implementation request should start
-with the next unfinished milestone in PLAN.md.
+Implementation was authorized on 2026-10-31. Work through the next unfinished
+milestone in PLAN.md and its acceptance checks. Use only disposable databases
+for local verification. Production database access, deployment and paid provider
+calls require separate explicit authorization.
 
 ## Working style
 
@@ -23,7 +23,8 @@ with the next unfinished milestone in PLAN.md.
 - Use Symfony conventions, small application services and explicit dependencies.
   Add modules and packages only when a real feature needs them.
 - Verify supported PHP/Symfony versions and package compatibility from official
-  sources before selecting or installing versions. No versions are selected yet.
+  sources before selecting or installing new versions. The current selection is
+  recorded in docs/decisions.md.
 - Do not initialize/publish Git or create commits unless requested.
 
 ## Boundaries

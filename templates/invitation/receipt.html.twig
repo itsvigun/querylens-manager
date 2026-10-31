@@ -1,0 +1,2 @@
+{% extends 'base.html.twig' %}
+{% block body %}<h1>Invitation operation</h1><section class="panel"><p role="alert">{{ message }}</p>{% if id %}<a href="{{ path('invitation_detail', {id: id}) }}">Inspect invitation</a>{% endif %}<p><a href="{{ path('console') }}">Return to invitations</a></p></section>{% endblock %}

@@ -1,0 +1,24 @@
+name: Checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  php:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/check-repository.py
+      - run: docker compose build --pull
+      - run: docker compose run --rm app composer install --no-interaction --prefer-dist
+      - run: docker compose run --rm app composer validate --strict
+      - run: docker compose run --rm app composer lint
+      - run: docker compose run --rm app composer test
+      - run: python3 tools/export-upstream.py
+      - run: docker compose -f compose.test.yaml build python
+      - run: docker compose -f compose.test.yaml up -d --wait database
+      - run: docker compose -f compose.test.yaml run --rm python python /checks/prepare.py
+      - run: docker compose -f compose.test.yaml run --rm python python /checks/enable_administration.py
+      - run: docker compose -f compose.test.yaml run --rm php composer test:database
+      - run: python3 tools/check-contract.py
+      - if: always()
+        run: docker compose -f compose.test.yaml down --volumes

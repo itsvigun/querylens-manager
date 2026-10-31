@@ -1,0 +1,33 @@
+framework:
+  secret: '%env(APP_SECRET)%'
+  router:
+    utf8: true
+  csrf_protection: true
+  lock: flock
+  form: true
+  validation:
+    email_validation_mode: html5
+  session:
+    name: qlm_admin
+    handler_id: null
+    save_path: '%kernel.project_dir%/var/sessions/%kernel.environment%'
+    cookie_secure: auto
+    cookie_httponly: true
+    cookie_samesite: strict
+    cookie_path: /
+    gc_maxlifetime: 1800
+  cache:
+    pools:
+      cache.login_limiter:
+        adapter: cache.adapter.filesystem
+  rate_limiter:
+    owner_login:
+      policy: fixed_window
+      limit: 5
+      interval: '15 minutes'
+      cache_pool: cache.login_limiter
+when@test:
+  framework:
+    test: true
+    session:
+      storage_factory_id: session.storage.factory.mock_file

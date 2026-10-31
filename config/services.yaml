@@ -1,0 +1,25 @@
+parameters:
+  env(APP_SECRET): ''
+  env(ADMIN_USERNAME): ''
+  env(ADMIN_PASSWORD_HASH): ''
+  env(APP_ORIGIN): ''
+  env(QUERYLENS_BASE_URL): ''
+  env(MANAGER_DATABASE_URL): ''
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+  App\:
+    resource: ../src/
+    exclude: ../src/Kernel.php
+  App\Security\OwnerConfiguration:
+    arguments:
+      $username: '%env(ADMIN_USERNAME)%'
+      $passwordHash: '%env(ADMIN_PASSWORD_HASH)%'
+      $appSecret: '%env(APP_SECRET)%'
+      $origin: '%env(APP_ORIGIN)%'
+  logger:
+    alias: App\Logging\SanitizedLogger
+  Psr\Log\LoggerInterface:
+    alias: App\Logging\SanitizedLogger

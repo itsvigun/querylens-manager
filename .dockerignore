@@ -1,0 +1,8 @@
+.git
+.env*
+!.env.example
+vendor
+var
+artifacts
+.access-tokens
+PLAN.md

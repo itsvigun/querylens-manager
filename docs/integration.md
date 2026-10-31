@@ -1,6 +1,7 @@
 # QueryLens integration baseline
 
-Status: a source-derived compatibility brief, not an implemented PHP adapter.
+Status: implemented locally with DBAL, restricted views and constrained routines;
+real PostgreSQL and cross-language evidence is in verification.md.
 Upstream revision: `5f2c38e`; reinspect source before implementing against a newer
 revision. Existing schema ownership stays with Alembic.
 
@@ -16,7 +17,8 @@ revision. Existing schema ownership stays with Alembic.
 | `operations.demo_months` | Shared monthly usage and legacy archived reserves | Outside initial console editing |
 | `operations.demo_leases` | Durable active-question concurrency | No recovery, deletion or mutation |
 
-This is an intended permission boundary, not a SQL GRANT specification. Avoid
+Exact grants and constrained routines are in database/001_read_model.sql and
+database/002_administration.sql; owner-job sequencing is in database.md. Avoid
 blanket table access: determine views/column grants/routines and test negative
 privileges. Existing Python API credentials cannot issue/revoke/edit invitations;
 do not reuse them or a database owner password for the console.
@@ -32,7 +34,8 @@ do not reuse them or a database owner password for the console.
   not the secret alone. Never persist the full code or fragment link.
 - Python uses a separate `qls_...` visitor-session format; Symfony does not issue
   those sessions or reuse them for administrative authentication.
-- Build the invitation URL from a configured trusted HTTPS QueryLens base URL,
+- Build the invitation URL from a configured trusted HTTPS QueryLens base URL
+  (or explicit development-only loopback HTTP for the shared local integration),
   using `/#at=<credential>`. Never construct it from an untrusted Host header.
 - Secret presentation must be one-time, owner-authenticated, no-store/no-referrer
   and absent from logs/profiling/telemetry. The browser must receive it for copy;

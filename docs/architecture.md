@@ -1,77 +1,68 @@
-# Proposed console architecture
+# Console architecture
 
-Status: design direction only. No application or integration is implemented.
+Status: local implementation of milestones 1–3. Hosting remains unverified.
+See [decisions](decisions.md) and [verification](verification.md).
 
-## First-release boundary
+## Product and boundaries
 
-The owner creates an invitation, privately shares its one-time-displayed link,
-then inspects usage or edits/revokes it. The three main screens are invitation
-list, create/edit and usage detail, plus administrative login and one-time secret
-presentation. An invitation label is sufficient; separate company CRM is deferred.
+The owner signs in, creates a named invitation, privately copies its one-time
+link, inspects sanitized usage, and edits lifetime limits/expiry or revokes it.
+There is no registration, Company CRUD, public admin API, invitation deletion,
+quota reset, provider execution, scheduler or worker.
 
-Symfony is intended to use Security, Forms/Validator, Twig, dependency-injected
-application services and Doctrine DBAL for existing operations tables. Use ORM
-for genuinely console-owned entities only when needed. Version/package selection
-belongs to milestone 1, after official compatibility checks.
-
-## Proposed deployment and ownership
+PHP 8.5 / Symfony 7.4 uses Security, Forms/Validator, Twig and explicit application
+services. Doctrine DBAL issues parameterized SQL to a restricted read/routine
+boundary. ORM and Doctrine migrations are absent because Alembic owns operations.
 
 ```mermaid
 flowchart LR
-    Owner[Owner browser] --> Console[Symfony console]
-    Console -->|Restricted administration role| Operations[(PostgreSQL operations schema)]
+    Owner[Owner browser] --> Console[Symfony Manager]
+    Console -->|SELECT views / EXECUTE named routines| Manager[(manager schema)]
+    Manager -->|Restricted NOLOGIN owner| Operations[(operations schema)]
     Visitor[Invited visitor] --> Python[Python QueryLens]
-    Python -->|Atomic admission and usage accounting| Operations
-    Python --> AI[LLM, retrieval and read-only analytics]
+    Python -->|Admission / sessions / accounting| Operations
+    Python --> AI[AI and read-only analytics]
+    Job[Explicit owner job] -->|Alembic first / Manager SQL second| Operations
+    Job --> Manager
 ```
 
-The starting proposal shares the existing PostgreSQL instance, with a new console
-role and narrowly reviewed access. This is a deliberate shared-database design,
-not a claim that the applications are independently deployable microservices.
-Cross-repository database compatibility must be managed explicitly.
+The applications deliberately share a PostgreSQL ledger. This requires coordinated
+schema releases and a pinned Python contract, not independent database ownership.
+`manager.compatibility` verifies Alembic head on each new runtime connection;
+unsupported heads fail closed. No migration, role grant or seed runs on startup.
 
-| Responsibility | Owner |
+| Responsibility | Implementation owner |
 |---|---|
-| Administrative authentication and forms | Symfony |
-| Invitation creation, limit edits, expiry and revocation workflows | Symfony, compatible with existing Python owner CLI |
-| Existing operations schema and its migrations | Python/Alembic |
-| Visitor login/session creation, atomic admission and concurrency leases | Python |
-| Post-request usage/cost recording and AI execution | Python |
-| Usage display and administrative-action audit | Symfony |
-| Explicit role provisioning and any schema migration | Owner job, outside both web runtimes |
+| Owner login, CSRF, session/attempt limits | Symfony Security and security listeners |
+| Forms and operation intentions | Symfony controllers, InvitationOptions, OperationIntents |
+| Invitation mutations and atomic audit | Three SECURITY DEFINER routines owned by a NOLOGIN role |
+| Existing operations schema | Pinned Python/Alembic owner jobs |
+| New manager schema/views/routines/audit | Explicit Manager SQL owner jobs |
+| Visitor sessions, admission, concurrency, post-request usage | Python only |
+| Read projections and pagination | InvitationReader and restricted SQL views |
 
-Doctrine must exclude existing operations tables from schema generation and
-migrations. If a console-only schema is introduced, document its single migration
-owner and deployment order first. No schema or role is created in this phase.
+All mutations acquire the existing transaction advisory lock `716202608` before
+reading state. Paired initial rows, metadata changes and audit commit atomically.
+Editing compares a metadata version to reject stale forms. Operation IDs make
+successful replays harmless. First revocation time and every usage counter remain
+preserved; already admitted Python work can finish after revocation.
 
-## Runtime boundary
+The creation response renders plaintext only after commit. Its session contains
+public operation IDs and CSRF data only. A replay/lost response cannot recover a
+secret and cannot silently issue a second invitation. See [security](security.md).
 
-The Symfony runtime needs neither OpenAI credentials nor analytics/knowledge
-readers nor PostgreSQL owner credentials. It cannot reset usage, alter global
-policy, mutate completed accounting, remove leases or manufacture visitor sessions.
-Administration and Python admission must follow the same transaction/locking
-protocol; see [integration](integration.md).
+## Source map
 
-An alternative is a private Python administrative HTTP API. It adds an explicit
-network/authentication contract and a server-side administrative component that
-does not exist today. Choose it only through a recorded decision; never assume
-the public `/api/chat` service already exposes owner operations.
+- `src/Security`: owner configuration/provider, login limiter, idle timeout, origin/headers.
+- `src/Invitation`: validated options, code/link generation, intentions and DBAL services.
+- `src/Controller`, `src/Form`, `templates`: authenticated HTTP workflows and escaped UI.
+- `src/Infrastructure`: lazy dedicated-role connection and compatibility guard.
+- `database`: explicit, versioned owner jobs; no operations-table DDL.
+- `tests`: unit/HTTP, PostgreSQL permission and pinned Python contract checks.
 
-## Open decisions before implementation
+## Remaining operational work
 
-1. Supported PHP/Symfony versions and the smallest required package set.
-2. Confirm shared-DB integration or choose the private-API alternative.
-3. Exact grants and constrained writes: reviewed SQL repositories versus
-   database routines, with cross-language concurrency/ACL tests.
-4. One owner login, password-hash provisioning, session storage and hosting access.
-5. Administrative audit storage/migration ownership and mutation atomicity.
-6. Safe one-time code delivery, POST refresh/double submission and lost responses.
-7. Local disposable test topology, cross-repository CI and release coordination.
-
-## Deferred extensions
-
-Saved analytical reports can later become a separate feature using Symfony
-HttpClient to call QueryLens. Background execution may justify Messenger only
-then. Such work requires separate report permissions, content retention, service
-credentials, quotas and paid-test allowances. No queue/worker/scheduler is needed
-for the initial invitation console.
+Choose hosting, production HTTP/PHP serving, TLS/proxy mapping and private persistent
+storage. Verify secure cookies, restart/session behavior, owner audit and PHP-issued
+login in the hosted Python UI. The development server is not a production runtime.
+The local tests and CI definition do not establish hosted acceptance.

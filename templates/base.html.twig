@@ -1,0 +1,4 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{% block title %}QueryLens Manager{% endblock %}</title><link rel="stylesheet" href="/style.css"></head>
+<body><header><a href="{{ path('console') }}">QueryLens <strong>Manager</strong></a>{% if app.user %}<form method="post" action="{{ path('logout') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}"><button class="secondary">Sign out</button></form>{% endif %}</header>
+<main>{% if app.environment == 'preview' %}<p class="badge">Offline demonstration · Disposable invitations and synthetic usage</p>{% endif %}{% block body %}{% endblock %}</main><footer>Owner console · Estimated AI costs in USD · All times UTC</footer></body></html>

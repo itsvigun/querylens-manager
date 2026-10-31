@@ -1,0 +1,55 @@
+name: querylens-manager-tests
+services:
+  database:
+    image: pgvector/pgvector:0.8.6-pg17-bookworm
+    environment:
+      POSTGRES_DB: manager_test
+      POSTGRES_USER: test_owner
+      POSTGRES_PASSWORD: disposable-test-owner
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_owner -d manager_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  php:
+    image: querylens-manager-app:latest
+    build: .
+    volumes: [".:/app"]
+    environment:
+      TEST_MANAGER_DATABASE_URL: postgresql://querylens_manager:disposable-manager@database/manager_test
+      TEST_OWNER_DATABASE_URL: postgresql://test_owner:disposable-test-owner@database/manager_test
+    depends_on:
+      database: {condition: service_healthy}
+  web:
+    image: querylens-manager-app:latest
+    profiles: [preview]
+    volumes: [".:/app"]
+    ports: ["127.0.0.1:8086:8080"]
+    environment:
+      APP_ENV: preview
+      APP_DEBUG: "0"
+      APP_ORIGIN: http://localhost:8086
+      QUERYLENS_BASE_URL: https://querylens.test
+      MANAGER_DATABASE_URL: postgresql://querylens_manager:disposable-manager@database/manager_test
+    depends_on:
+      database: {condition: service_healthy}
+  python:
+    build:
+      context: .
+      dockerfile: docker/Python.Dockerfile
+      additional_contexts:
+        upstream: ./artifacts/upstream
+    volumes: ["./tests/Contract:/checks:ro", "./database:/manager-database:ro"]
+    environment:
+      POSTGRES_DB: manager_test
+      POSTGRES_USER: test_owner
+      POSTGRES_PASSWORD: disposable-test-owner
+      POSTGRES_HOST: database
+      POSTGRES_PORT: "5432"
+      TEST_OWNER_DATABASE_URL: postgresql://test_owner:disposable-test-owner@database/manager_test
+      TEST_MANAGER_DATABASE_URL: postgresql://querylens_manager:disposable-manager@database/manager_test
+      TEST_DEMO_DATABASE_URL: postgresql://querylens_demo_control:disposable-demo-control@database/manager_test
+    depends_on:
+      database: {condition: service_healthy}

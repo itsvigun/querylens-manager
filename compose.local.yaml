@@ -1,0 +1,14 @@
+# Attach only the Manager web runtime to the existing local QueryLens network.
+# Provision its restricted connection explicitly with tools/connect-local.py first.
+services:
+  app:
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: "0"
+      APP_ORIGIN: http://localhost:8086
+      QUERYLENS_BASE_URL: http://127.0.0.1:8000
+    networks: [querylens]
+networks:
+  querylens:
+    external: true
+    name: querylens_default
