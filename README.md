@@ -3,8 +3,11 @@
 Owner-only Symfony administration for
 [QueryLens](https://github.com/itsvigun/querylens) demo invitations.
 
-**Status:** milestones 1–3 implemented and verified locally with PHP 8.5,
-Symfony 7.4 LTS and PostgreSQL 17. Hosting is not deployed or verified.
+**Status:** deployed on Railway with PHP 8.5, Symfony 7.4 LTS and PostgreSQL 17.
+[Open Manager](https://querylens-manager-production.up.railway.app) ·
+[QueryLens](https://querylens-production-f241.up.railway.app).
+Hosted HTTPS/login/session/restart and cross-application login are verified
+without an AI request; see [deployment evidence](docs/verification.md).
 
 - Owner login/logout, CSRF, login throttling and separate admin sessions.
 - Paginated invitations and sanitized usage, exact micro-USD and unknown states.

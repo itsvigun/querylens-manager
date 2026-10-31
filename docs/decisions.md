@@ -56,7 +56,8 @@ cookies, no debug/profiler, no third-party assets, no request/body/SQL logging.
 Host/reverse-proxy TLS must preserve the canonical request scheme; arbitrary
 forwarded headers are not trusted. Restart with ephemeral sessions signs the
 owner out; login limiter storage must survive restarts. Multiple replicas require
-an explicit shared session/limiter design first. Hosting is not yet verified.
+an explicit shared session/limiter design first. Hosted restart/session behavior
+is now verified; see the dated verification record.
 
 ## One-time delivery and replay policy
 
@@ -92,3 +93,14 @@ SCRAM credential, and installs Manager schema/grants transactionally. See
 [local integration](local-integration.md). Preview fixtures are not copied.
 The link builder allows exact loopback HTTP only in dev/test/local to match
 Python's configured public Origin; production/remote HTTPS rules remain enforced.
+
+
+## Production serving and state
+
+Railway deployment was separately authorized on 2026-10-31. Production uses a
+PHP 8.5.12 Apache/mod_php prefork image with no access logs, explicit HTTPS mapping
+at the server boundary, a canonical Host check and a constant-only liveness route.
+No forwarded host/protocol header can override application authority. Session and
+limiter files use one persistent /data volume; code/cache are container-local.
+Startup checks configuration/restricted DB compatibility without provisioning.
+Custom Dockerfile/API service settings avoid the deprecated railway.toml format.

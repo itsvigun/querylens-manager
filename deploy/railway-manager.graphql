@@ -1,0 +1,20 @@
+# Apply only to the Manager service. No legacy railway.toml or other-service IaC.
+mutation ConfigureManager($service: String!, $environment: String!) {
+  serviceInstanceUpdate(
+    serviceId: $service
+    environmentId: $environment
+    input: {
+      dockerfilePath: "Dockerfile.railway"
+      startCommand: "production-start"
+      healthcheckPath: "/health/live"
+      healthcheckTimeout: 120
+      restartPolicyType: ON_FAILURE
+      restartPolicyMaxRetries: 3
+      numReplicas: 1
+      multiRegionConfig: {iad: {numReplicas: 1}}
+      sleepApplication: false
+      tracingEnabled: false
+      autoInstrumentationEnabled: false
+    }
+  )
+}

@@ -1,4 +1,6 @@
 parameters:
+  app.default_state_dir: '%kernel.project_dir%/var/state'
+  app.state_dir: '%env(default:app.default_state_dir:APP_STATE_DIR)%'
   env(APP_SECRET): ''
   env(ADMIN_USERNAME): ''
   env(ADMIN_PASSWORD_HASH): ''
@@ -23,3 +25,8 @@ services:
     alias: App\Logging\SanitizedLogger
   Psr\Log\LoggerInterface:
     alias: App\Logging\SanitizedLogger
+  cache.login_limiter:
+    class: Symfony\Component\Cache\Adapter\FilesystemAdapter
+    arguments:
+      $namespace: 'qlm_owner_login_%kernel.environment%'
+      $directory: '%app.state_dir%/login-limiter'

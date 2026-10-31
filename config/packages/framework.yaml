@@ -16,10 +16,6 @@ framework:
     cookie_samesite: strict
     cookie_path: /
     gc_maxlifetime: 1800
-  cache:
-    pools:
-      cache.login_limiter:
-        adapter: cache.adapter.filesystem
   rate_limiter:
     owner_login:
       policy: fixed_window
@@ -31,3 +27,7 @@ when@test:
     test: true
     session:
       storage_factory_id: session.storage.factory.mock_file
+when@prod:
+  framework:
+    session:
+      save_path: '%app.state_dir%/sessions'

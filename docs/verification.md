@@ -261,3 +261,77 @@ artifacts remain ignored. Source/link and staged whitespace checks passed.
 The preceding verification sections retain their actual local results; no paid
 or hosted check was added for publication. The push will trigger the checked-in
 CI definition; remote workflow success still needs its own evidence.
+
+
+## 2026-10-31 — Railway production deployment and hosted acceptance
+
+The owner authorized deploying into project b5a42a05-9ecc-4fb3-8564-87d44ddeeb6f,
+production environment e79460da-83a9-4079-a279-6ea49b704fab. Renewed the expired
+Railway CLI OAuth login after explicit owner approval, scoped to the selected
+workspace/project. CLI 5.64.2 and the live GraphQL schema were inspected.
+
+Created service `querylens-manager` (69375b0b-8db5-49dc-abb2-1ad15de4bac8), one
+iad replica and its own /data volume. Public HTTPS domain:
+https://querylens-manager-production.up.railway.app
+The existing QueryLens remains https://querylens-production-f241.up.railway.app.
+No existing db/querylens/setup/ingest service was redeployed or reconfigured.
+
+The explicit owner job verified head 0006_post_request_usage and six existing
+token/usage pairs, captured an operations-only private pg_dump, then installed
+Manager roles/schema/views/routines/audit in one locked transaction. Whole-row
+token/usage hashes matched before/after; no operations migration, seed, ingestion,
+quota reset or policy edit occurred. Generated distinct random owner/runtime
+credentials. SCRAM hashing was client-side; owner/provider secrets were never
+fetched or transferred to Manager. Secret values used stdin and private mode-0600
+records only. The new service's variables contain no owner/provider/reader/writer/
+demo-control credential; its database role is querylens_manager. Host/database
+and Python domain reference variables create the intended dependency edges.
+
+Production uses the separate PHP 8.5.12 Apache/mod_php prefork image, 53 locked
+production dependencies, no access logs, canonical HTTPS mapping, constant-only
+health and private persistent session/limiter state. Startup checks restricted
+DB/schema compatibility without provisioning. The custom Dockerfile path and
+service API settings avoid deprecated railway.toml (CLI announced 2026-12-01 end
+of support). Builder DOCKERFILE is not accepted by the current GraphQL enum; the
+custom Dockerfile variable/path was used instead.
+
+Deployment 320951df-d0ae-4fbc-8a34-f717079bdfe2 failed at Apache startup with an
+MPM conflict. Explicitly disabled event/worker and enabled prefork at build/start;
+added apache2ctl validation. Deployment 53362fc5-2cba-40be-9c3a-07fc58b328e5
+then reached SUCCESS, image digest
+sha256:b28da2c13f61aa2985f5d046d6ed29b6420fe810c37151d488b7e24233212e22.
+It was uploaded through Railway CLI from the reviewed working tree; this record
+does not treat an earlier Git hash as proof that later files were excluded.
+
+Actual checks:
+
+- Local production Apache HTTP login, stylesheet, health, Secure/HttpOnly/Strict
+  cookie, no-store/no-referrer/HSTS and owner session across container restart
+  passed against the disposable database. An early Apache directory rewrite
+  rule returned 403; the corrected vhost rewrite passed the HTTP check.
+- `composer lint` passed PHP/container and all eight Twig templates. PHPUnit
+  passed 58 no-DB tests / 89 assertions and 9 disposable PostgreSQL tests /
+  91 assertions. The pinned Python issuance/session/locking/accounting/audit
+  contract passed again. No general/race/permission fixtures ran on hosting.
+- `tools/check-production-http.py --hosted` passed real HTTPS owner login, cookie
+  and response protections, authenticated owner session after an observed process
+  restart, one-time PHP issuance and safe 409 replay, actual Python HTTP login/
+  authenticated status with all 10 questions remaining, Python logout, sanitized
+  detail and audited revocation, then owner logout/protected-route redirect.
+  A labeled revoked verification row/audit remain. No code/session/CSRF value was
+  printed, persisted or screenshotted. No chat, admission or AI call occurred.
+- CLI `restart` waiting initially exceeded the checker timeout. The checker now
+  uses the exact deploymentRestart API and waits for a changed /proc/1 start tick
+  before accepting session continuity, rather than accepting an old health reply.
+- QueryLens readiness remains 200 with database/migrations/pgvector/access true;
+  Manager login is 200. Hosted public PHP styling and login are served by Apache.
+- The previously published 09fb201 GitHub Checks workflow completed successfully:
+  https://github.com/itsvigun/querylens-manager/actions/runs/41224943238
+  The production workflow now also builds/HTTP-tests the Apache image with a
+  synthetic owner and disposable DB, without Railway or provider credentials.
+
+The owner login handoff is in ignored .access-tokens/railway-manager-owner.txt;
+passwords, runtime URL, backup and CLI tokens are excluded from source/images/logs.
+A visual hosted fragment-link walkthrough, published sanitized portfolio images
+and a backup restore rehearsal remain separate from these HTTP checks. No paid
+AI accuracy/spending claim is established.

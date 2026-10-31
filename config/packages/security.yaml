@@ -23,5 +23,6 @@ security:
         enable_csrf: true
         invalidate_session: true
   access_control:
+    - { path: ^/health/live$, roles: PUBLIC_ACCESS }
     - { path: ^/login$, roles: PUBLIC_ACCESS }
     - { path: ^/, roles: ROLE_ADMIN }

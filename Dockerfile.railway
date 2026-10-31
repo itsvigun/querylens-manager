@@ -1,0 +1,30 @@
+FROM composer:2.10.3 AS composer
+FROM php:8.5.12-apache-bookworm
+
+RUN apt-get update && apt-get install -y --no-install-recommends libicu-dev libpq-dev libonig-dev unzip \
+    && docker-php-ext-install intl mbstring pdo_pgsql \
+    && a2dismod mpm_event mpm_worker \
+    && a2enmod mpm_prefork rewrite \
+    && a2disconf other-vhosts-access-log \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+COPY docker/php.ini /usr/local/etc/php/conf.d/querylens.ini
+COPY docker/apache-production.conf /etc/apache2/sites-available/000-default.conf
+COPY docker/apache-ports.conf /etc/apache2/ports.conf
+COPY docker/production-start.sh /usr/local/bin/production-start
+WORKDIR /app
+COPY composer.json composer.lock ./
+COPY bin ./bin
+COPY config ./config
+COPY src ./src
+COPY templates ./templates
+COPY public ./public
+COPY resources ./resources
+RUN composer install --no-dev --no-interaction --prefer-dist --no-scripts --classmap-authoritative \
+    && mkdir -p var/cache \
+    && chown -R www-data:www-data var \
+    && chmod 755 /usr/local/bin/production-start
+
+ENV APP_ENV=prod APP_DEBUG=0 PORT=8080 APP_STATE_DIR=/data/manager
+EXPOSE 8080
+CMD ["production-start"]

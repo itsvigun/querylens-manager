@@ -1,6 +1,7 @@
 # Security boundaries
 
-Implemented and tested locally; hosting controls still require separate evidence.
+Implemented with local and hosted no-provider verification. Exact hosting
+evidence and remaining checks are recorded separately.
 See [verification](verification.md) for dated results.
 
 ## Owner access
@@ -78,6 +79,9 @@ Hosting/proxy/database logging must be reviewed separately, especially bind
 parameters containing invitation digests. Disable request bodies, SQL parameters,
 debug/profiling and third-party telemetry in the production path.
 
-Only synthetic fixtures are used locally. Test-generated codes flow through memory
-pipes, not files or test reports. No hosted ledger, paid call, deployment or real
-credential transfer was performed or authorized by the implementation work.
+General fixtures and permission/race checks use only disposable data. The owner
+separately authorized Railway provisioning/deployment and bounded hosted login
+acceptance. Verification codes stay in memory and are revoked after use; no AI
+call/admission occurs. New production admin/runtime credentials are private,
+distinct and excluded from Git/build/logs; database-owner/provider credentials
+never enter Manager.

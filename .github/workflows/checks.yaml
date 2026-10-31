@@ -20,5 +20,10 @@ jobs:
       - run: docker compose -f compose.test.yaml run --rm python python /checks/enable_administration.py
       - run: docker compose -f compose.test.yaml run --rm php composer test:database
       - run: python3 tools/check-contract.py
+      - run: docker build -f Dockerfile.railway -t querylens-manager:production .
+      - run: python3 tests/Deployment/start.py
+      - run: python3 tools/check-production-http.py
+      - if: always()
+        run: docker stop querylens-manager-production-smoke-v2 || true
       - if: always()
         run: docker compose -f compose.test.yaml down --volumes

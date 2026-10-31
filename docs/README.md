@@ -9,6 +9,7 @@ They require no private QueryLens plan, environment file or invitation code.
 | [Local setup](setup.md) | Reproducible development and verification commands |
 | [Shared local integration](local-integration.md) | Connect the running Python UI and Manager to one local ledger |
 | [Implementation decisions](decisions.md) | Selected stack, integration, authentication and ownership |
+| [Railway deployment](deployment.md) | Production serving, scoped owner job, persistent state and rollback |
 | [Database owner jobs](database.md) | Disposable checks, grants, release order and rollback |
 | [Offline walkthrough](walkthrough.md) | Demonstrate the first-release workflows with synthetic data |
 | [Architecture](architecture.md) | Console scope, boundaries, proposed integration and open decisions |

@@ -1,6 +1,7 @@
 # Console architecture
 
-Status: local implementation of milestones 1–3. Hosting remains unverified.
+Status: local implementation and Railway deployment. HTTPS, owner-session restart
+and PHP-issued Python HTTP login are verified without provider execution.
 See [decisions](decisions.md) and [verification](verification.md).
 
 ## Product and boundaries
@@ -60,9 +61,15 @@ secret and cannot silently issue a second invitation. See [security](security.md
 - `database`: explicit, versioned owner jobs; no operations-table DDL.
 - `tests`: unit/HTTP, PostgreSQL permission and pinned Python contract checks.
 
-## Remaining operational work
+## Hosting and remaining acceptance
 
-Choose hosting, production HTTP/PHP serving, TLS/proxy mapping and private persistent
-storage. Verify secure cookies, restart/session behavior, owner audit and PHP-issued
-login in the hosted Python UI. The development server is not a production runtime.
-The local tests and CI definition do not establish hosted acceptance.
+Railway serves a dedicated Apache/mod_php production image through its HTTPS
+edge, with a single replica and persistent private session/limiter volume.
+Manager uses only its restricted PostgreSQL role. Hosted owner login, actual
+process restart/session continuity, one-time issuance/replay and Python HTTP
+login/session/logout/revoke passed without AI execution. See
+[deployment](deployment.md) and [verification](verification.md).
+
+Backup-restore rehearsal, visual fragment-link acceptance in the hosted Python
+browser and published sanitized portfolio screenshots are separate remaining
+checks. No paid AI accuracy/spending evidence is claimed by the Manager tests.

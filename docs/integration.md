@@ -1,7 +1,8 @@
 # QueryLens integration baseline
 
-Status: implemented locally with DBAL, restricted views and constrained routines;
-real PostgreSQL and cross-language evidence is in verification.md.
+Status: implemented locally and on Railway with DBAL, restricted views and
+constrained routines. Disposable cross-language checks and bounded hosted HTTP
+login evidence are recorded separately in verification.md.
 Upstream revision: `5f2c38e`; reinspect source before implementing against a newer
 revision. Existing schema ownership stays with Alembic.
 

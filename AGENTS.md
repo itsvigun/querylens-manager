@@ -9,8 +9,9 @@ the integration. Read docs/verification.md for actual evidence.
 
 Implementation was authorized on 2026-10-31. Work through the next unfinished
 milestone in PLAN.md and its acceptance checks. Use only disposable databases
-for local verification. Production database access, deployment and paid provider
-calls require separate explicit authorization.
+for local verification. The owner separately authorized Railway provisioning/deployment and bounded
+no-provider hosted acceptance in project b5a42a05-9ecc-4fb3-8564-87d44ddeeb6f
+on 2026-10-31. Paid provider calls still require separate explicit authorization.
 
 ## Working style
 

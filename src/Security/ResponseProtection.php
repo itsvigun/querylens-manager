@@ -18,6 +18,9 @@ final readonly class ResponseProtection
     {
         if (!$event->isMainRequest()) { return; }
         $request = $event->getRequest();
+        if ($request->isMethod('GET') && $request->getPathInfo() === '/health/live') {
+            return;
+        }
         if ($request->getSchemeAndHttpHost() !== rtrim($this->configuration->origin, '/')) {
             throw new BadRequestHttpException('Untrusted origin.');
         }
